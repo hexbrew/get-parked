@@ -23,7 +23,9 @@ const App = () => {
   return (
     <StoreProvider initialState={initialState} reducer={reducer}>
       <Header />
-      {/* TODO: Route view for body */}
+      <div id="page-body">
+        {/* TODO: Route view for body */}
+      </div>
       <Footer />
     </StoreProvider>
   );
