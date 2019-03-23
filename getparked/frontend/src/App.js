@@ -1,7 +1,10 @@
 import React from "react";
 import "./App.scss";
 import { StoreProvider } from "./store";
-import { Header } from "./components/Header"
+import { Header } from "./components/Header";
+
+import { BrowserRouter, Switch } from "react-router-dom";
+import RootRouter from "./routers";
 
 const App = () => {
   const initialState = { theme: { primary: "green" } };
@@ -21,7 +24,14 @@ const App = () => {
 
   return (
     <StoreProvider initialState={initialState} reducer={reducer}>
-      <Header />
+      <BrowserRouter>
+        {/* <Aux> */}
+        <Header />
+        <Switch>
+          <RootRouter />
+        </Switch>
+        {/* </Aux> */}
+      </BrowserRouter>
     </StoreProvider>
   );
 };
