@@ -1,10 +1,12 @@
 import React from "react";
-import "./App.scss";
-import { StoreProvider } from "./store";
-import { Header } from "./components/Header";
-
 import { BrowserRouter, Switch } from "react-router-dom";
 import RootRouter from "./routers";
+import { StoreProvider } from "./store";
+
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+
+import "./App.scss";
 
 const App = () => {
   const initialState = { theme: { primary: "green" } };
@@ -25,13 +27,15 @@ const App = () => {
   return (
     <StoreProvider initialState={initialState} reducer={reducer}>
       <BrowserRouter>
-        {/* <Aux> */}
         <Header />
-        <Switch>
-          <RootRouter />
-        </Switch>
-        {/* </Aux> */}
+        <div id="page-body">
+          <Switch>
+            <RootRouter />
+          </Switch>
+        </div>
       </BrowserRouter>
+      <Header />
+      <Footer />
     </StoreProvider>
   );
 };
