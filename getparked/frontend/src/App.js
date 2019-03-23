@@ -1,4 +1,5 @@
 import React from "react";
+import style from "./App.less"
 import { StoreProvider } from "./store";
 import ThemedButton from "./components/ThemedButton";
 
@@ -21,6 +22,7 @@ const App = () => {
   return (
     <StoreProvider initialState={initialState} reducer={reducer}>
       <ThemedButton />
+      <h1 class={style.waste}>Test H1 Tag</h1>
     </StoreProvider>
   );
 };
