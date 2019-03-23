@@ -34,7 +34,6 @@ const App = () => {
           </Switch>
         </div>
       </BrowserRouter>
-      <Header />
       <Footer />
     </StoreProvider>
   );

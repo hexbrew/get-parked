@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'webpack_loader',
 
     #Custom
-    'users'
+    'users',
+    'frontend'
 ]
 
 MIDDLEWARE = [
@@ -111,6 +112,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+FRONTEND_URL = 'portal/'
 
 WEBPACK_LOADER = {
     'DEFAULT': {
