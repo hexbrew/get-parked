@@ -1,6 +1,8 @@
 import React from "react";
+import "./App.scss";
 import { StoreProvider } from "./store";
 import ThemedButton from "./components/ThemedButton";
+import { NavigationBar } from "./components/nav/NavigationBar";
 
 const App = () => {
   const initialState = { theme: { primary: "green" } };
@@ -20,6 +22,7 @@ const App = () => {
 
   return (
     <StoreProvider initialState={initialState} reducer={reducer}>
+      <NavigationBar />
       <ThemedButton />
     </StoreProvider>
   );
