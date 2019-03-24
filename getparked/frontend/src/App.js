@@ -1,8 +1,12 @@
 import React from "react";
-import "./App.scss";
+import { BrowserRouter, Switch } from "react-router-dom";
+import RootRouter from "./routers";
 import { StoreProvider } from "./store";
-import { Header } from "./components/Header"
-import { Footer } from "./components/Footer"
+
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+
+import "./App.scss";
 
 const App = () => {
   const initialState = { theme: { primary: "green" } };
@@ -22,10 +26,14 @@ const App = () => {
 
   return (
     <StoreProvider initialState={initialState} reducer={reducer}>
-      <Header />
-      <div id="page-body">
-        {/* TODO: Route view for body */}
-      </div>
+      <BrowserRouter>
+        <Header />
+        <div id="page-body">
+          <Switch>
+            <RootRouter />
+          </Switch>
+        </div>
+      </BrowserRouter>
       <Footer />
     </StoreProvider>
   );
