@@ -80,6 +80,22 @@ class Booking(models.Model):
         to=LotDay, related_name=_('bookings'))
     start_date = models.DateField(auto_now=True, null=False)
 
+    def weekly_rate(self):
+        total = 0
+        for day in self.days.all():
+            total += day.rate
+        return total
+
+    def monthly_rate(self):
+        # Charge for 4 weeks per month
+        return self.weekly_rate() * 4
+
+    def lots(self):
+        lots = set()
+        for day in self.days.all():
+            lots.add(day.lot)
+        return lots
+
     def __str__(self):
         return f"{self.customer}: {self.start_date}"
 
@@ -88,12 +104,17 @@ class Booking(models.Model):
 
 
 @receiver(post_save, sender=Lot, dispatch_uid="lot_created")
-def create_days(sender, instance, **kwargs):
+def create_days(sender, instance, created, **kwargs):
     """
     Create LotDay entries for newly created lots.
     """
+    if not created:
+        # Not relevant
+        return
+
     for day in DAYS:
-        LotDay.objects.create(lot=instance, day=day[0], rate=instance.daily_rate)
+        LotDay.objects.create(
+            lot=instance, day=day[0], rate=instance.daily_rate)
 
 
 @receiver(m2m_changed, sender=Booking.days.through, dispatch_uid="booking_days_changed")

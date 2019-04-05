@@ -4,6 +4,16 @@ from django.contrib import admin
 from .models import Customer, Lot, LotDay, Booking
 
 
+class LotDayInline(admin.TabularInline):
+    model = LotDay
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ('user',)
@@ -20,9 +30,6 @@ class BookingAdmin(admin.ModelAdmin):
 class LotAdmin(admin.ModelAdmin):
     list_display = ('location', 'bays', 'occupancy_percentage', 'daily_rate')
     search_fields = ('location',)
-
-
-@admin.register(LotDay)
-class LotDayAdmin(admin.ModelAdmin):
-    list_display = ('lot','day', 'rate', 'occupancy_percentage')
-    search_fields = ('lot',)
+    inlines = [
+        LotDayInline
+    ]
