@@ -19,7 +19,7 @@ class ReservedBay(models.Model):
 class Booking(models.Model):
     CarParkID = models.ForeignKey(CarPark, primary_key=True, on_delete=models.CASCADE)
     customerID = models.ForeignKey(Customer, primary_key=True, on_delete=models.CASCADE)
-    bay = models.ForeignKey(ReservedBay, primary_key=True, null=True)  # if Null, not a specific bay
+    bay = models.ForeignKey(ReservedBay, primary_key=True, null=True, on_delete=models.CASCADE)  # if Null, not a specific bay
     # days of the week
 
 # a view to say how many parks are still available on which days of the week
