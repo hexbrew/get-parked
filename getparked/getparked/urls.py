@@ -8,5 +8,5 @@ from parking import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(settings.FRONTEND_URL, include('frontend.urls')),
-    path('time/', views.car_park_availability)
+    path('parks/', views.car_park_availability)
 ]
