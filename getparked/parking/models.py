@@ -35,7 +35,16 @@ class Booking(models.Model):
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
     bay_id = models.OneToOneField(ReservedBay, null=True, blank=True, on_delete=models.CASCADE, default=None)
 
-    # weekdays_booked = models.BinaryField(7, default=0b1111111)  # 7 bits represent Monday-Sunday, 1 for booked 0 for not
+    booked_monday = models.BooleanField(default=True)
+    booked_tuesday = models.BooleanField(default=True)
+    booked_wednesday = models.BooleanField(default=True)
+    booked_thursday = models.BooleanField(default=True)
+    booked_friday = models.BooleanField(default=True)
+    booked_saturday = models.BooleanField(default=False)
+    booked_sunday = models.BooleanField(default=False)
+
+    # weekdays_booked = models.BinaryField(7, default=0b1111111)
+    # 7 bits represent Monday-Sunday, 1 for booked 0 for not
     # Don't work does it?
 
     def __str__(self):
