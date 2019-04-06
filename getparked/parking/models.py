@@ -25,15 +25,20 @@ class ReservedBay(models.Model):
     car_park_id = models.ForeignKey(CarPark, on_delete=models.CASCADE)
 
     def __str__(self):
-        return '{}\n car park: {}'.format(self.car_park_id, self.car_park_id.name)
+        return '{}\n car park: {}'.format(self.car_park_id, self.bay_id)
 
 
 class Booking(models.Model):
     # Weak-ass entity
-    name = models.CharField(max_length=200, default='Bob')
-    bay_id = models.ForeignKey(ReservedBay, null=True, on_delete=models.CASCADE, default=None)
+    id = models.AutoField(primary_key=True)
     car_park_id = models.ForeignKey(CarPark, on_delete=models.CASCADE)
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    weekdays_booked = models.BinaryField(7, default=0b1111111)  # 7 bits represent Monday-Sunday, 1 for booked 0 for not
+    bay_id = models.OneToOneField(ReservedBay, null=True, blank=True, on_delete=models.CASCADE, default=None)
+
+    # weekdays_booked = models.BinaryField(7, default=0b1111111)  # 7 bits represent Monday-Sunday, 1 for booked 0 for not
+    # Don't work does it?
+
+    def __str__(self):
+        return '{}'.format(self.car_park_id)
 
 # a view to say how many parks are still available on which days of the week
