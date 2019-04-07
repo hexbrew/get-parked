@@ -21,8 +21,8 @@ class ReservedBay(models.Model):
     class Meta:
         unique_together = ('car_park_id', 'bay_id')
 
-    bay_id = models.CharField(max_length=10, primary_key=True)  # id is char because could be C1, C10, A2, etc.
-    car_park_id = models.ForeignKey(CarPark, on_delete=models.CASCADE)
+    bay = models.CharField(max_length=10, primary_key=True)  # id is char because could be C1, C10, A2, etc.
+    car_park = models.ForeignKey(CarPark, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{}\n car park: {}'.format(self.car_park_id, self.bay_id)
@@ -31,9 +31,9 @@ class ReservedBay(models.Model):
 class Booking(models.Model):
     # Weak-ass entity
     id = models.AutoField(primary_key=True)
-    car_park_id = models.ForeignKey(CarPark, on_delete=models.CASCADE)
-    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    bay_id = models.OneToOneField(ReservedBay, null=True, blank=True, on_delete=models.CASCADE, default=None)
+    car_park = models.ForeignKey(CarPark, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    bay = models.OneToOneField(ReservedBay, null=True, blank=True, on_delete=models.CASCADE, default=None)
 
     booked_monday = models.BooleanField(default=True)
     booked_tuesday = models.BooleanField(default=True)
