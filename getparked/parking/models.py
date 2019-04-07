@@ -6,8 +6,16 @@ class CarPark(models.Model):
     address = models.CharField(max_length=200)
     total_parks = models.IntegerField()
 
+    def reserved_count(self):
+        all_reserved = ReservedBay.objects.filter(car_park_id=self)
+        return str(len(all_reserved))
+
+    def remaining_unreserved_count(self):
+        booked_count = len(Booking.objects.filter(car_park_id=self))
+        return self.total_parks - booked_count
+
     def __str__(self):
-        return '{}'.format(self.name)
+        return str(self.name)
 
 
 class Customer(models.Model):
