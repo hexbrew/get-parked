@@ -39,23 +39,23 @@ class Migration(migrations.Migration):
             name='ReservedBay',
             fields=[
                 ('bay_id', models.CharField(max_length=10, primary_key=True, serialize=False)),
-                ('car_park_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='parking.CarPark')),
+                ('car_park_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='parking_alex.CarPark')),
             ],
         ),
         migrations.AddField(
             model_name='booking',
             name='bay_id',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='parking.ReservedBay'),
+            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='parking_alex.ReservedBay'),
         ),
         migrations.AddField(
             model_name='booking',
             name='car_park_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='parking.CarPark'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='parking_alex.CarPark'),
         ),
         migrations.AddField(
             model_name='booking',
             name='customer_id',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='parking.Customer'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='parking_alex.Customer'),
         ),
         migrations.AlterUniqueTogether(
             name='reservedbay',

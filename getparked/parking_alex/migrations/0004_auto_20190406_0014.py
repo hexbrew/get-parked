@@ -7,13 +7,13 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parking', '0003_auto_20190406_0013'),
+        ('parking_alex', '0003_auto_20190406_0013'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='booking',
             name='bay_id',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='parking.ReservedBay', unique=True),
+            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='parking_alex.ReservedBay', unique=True),
         ),
     ]
