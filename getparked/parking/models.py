@@ -30,13 +30,27 @@ class Lot(models.Model):
     monthly_rate = models.FloatField(null=False, blank=False, default=0)
 
     def occupancy(self):
-        percentage = 0
+        """
+        Returns a fractional occupancy value for this bay.
+        """
+        fraction = 0
         for bay in self.bays.all():
-            percentage += bay.occupancy()/self.bays.count()
-        return percentage
+            fraction += bay.occupancy()/self.bays.count()
+        return fraction
 
     def occupancy_percentage(self):
-        return f"{round(self.occupancy())}%"
+        return f"{round(self.occupancy()*100)}%"
+
+    def bookings(self):
+        bookings = set()
+        bays = self.bays.all()
+        for bay in bays:
+            booking_days = bay.days.all()
+            for day in booking_days:
+                bookings.add(day.booking)
+
+        return bookings
+
 
     def __str__(self):
         return self.location
@@ -48,15 +62,20 @@ class Lot(models.Model):
 class Bay(models.Model):
     lot = models.ForeignKey(Lot, on_delete=models.CASCADE,
                             related_name=_('bays'), null=False, blank=False)
-    notes = models.CharField(max_length=255)
     code = models.CharField(
-        max_length=5, help_text="A lot-specific code to use for reserved bays. This should not be set on non-reserved bays.")  # For reserved bays
+        max_length=5, null=True, blank=True, help_text="A lot-specific code to use for reserved bays. This should not be set on non-reserved bays.")  # For reserved bays
+    size = models.CharField(max_length=10, null=False,
+                            blank=False, default='Any')
+    notes = models.CharField(max_length=255, null=True, blank=True)
 
     def occupancy(self):
         """
         Returns a fractional occupancy value for this bay.
         """
-        return self.days.count() / DAYS.count()
+        return self.days.count() / DAYS.__len__()
+
+    def occupancy_percentage(self):
+        return f"{round(self.occupancy()*100)}%"
 
     def is_occupied(self, day):
         """
@@ -67,6 +86,21 @@ class Bay(models.Model):
                 return True
 
         return False
+
+    def bookings(self):
+        """
+        Returns the customer bookings for this bay.
+        """
+        bookings = []
+        for day in self.days.all():
+            bookings.append(day.booking)
+        return bookings
+
+    def __str__(self):
+        return f"{self.lot} ({self.code or 'Virtual'})"
+
+    def __unicode__(self):
+        return f"{self.lot} ({self.code or 'Virtual'})"
 
 
 class Booking(models.Model):

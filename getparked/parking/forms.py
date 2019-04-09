@@ -1,7 +1,44 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
-from .models import Lot
+from .models import Lot, Bay, Booking
 
-class BookingForm(forms.Form):
-    your_name = forms.CharField(label='Your name', max_length=100)
+
+class BookingAddForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['customer', 'monthly_rate']
+        help_texts = {
+            'customer': _('The account holder for this booking.'),
+            'monthly_rate': _("A custom monthly rate for this customer. "
+                              "Leave this blank to use the default rate for this lot",)
+        }
+
     lot = forms.ModelChoiceField(queryset=Lot.objects.all())
+
+
+class LotAddForm(forms.ModelForm):
+    class Meta:
+        model = Lot
+        fields = ['location', 'monthly_rate']
+        help_texts = {
+            'location': _('The address of this lot.'),
+            'monthly_rate': _("The default monthly rate to apply for customers who sign up online.")
+        }
+
+    unreserved_bays = forms.IntegerField(label="Number of unreserved bays", help_text=_(
+        "You will be able to customise these further after lot creation."))
+    reserved_bays = forms.IntegerField(label="Number of reserved bays", help_text=_(
+        "You will be able to customise these further after lot creation."))
+
+    def save(self, commit=True):
+        instance = super(LotCreateForm, self).save(commit=False)
+        instance.save()
+
+        for i in range(self.cleaned_data['unreserved_bays']):
+            Bay.objects.create(lot=instance)
+
+        for i in range(1, self.cleaned_data['reserved_bays'] + 1):
+            Bay.objects.create(lot=instance, code=i)
+
+        return instance
