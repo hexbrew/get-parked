@@ -10,14 +10,12 @@ DAYS = (
     ('WED', 'Wednesday'),
     ('THU', 'Thursday'),
     ('FRI', 'Friday'),
-    ('SAT', 'Saturday'),
-    ('SUN', 'Sunday'),
 )
 
 
 class Customer(models.Model):
-    user = models.ForeignKey(to=settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE, related_name=_('customer'), null=False, blank=False)
+    user = models.OneToOneField(to=settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE, related_name=_('customer'), null=False, blank=False)
 
     def __str__(self):
         return str(self.user)
@@ -29,13 +27,12 @@ class Customer(models.Model):
 class Lot(models.Model):
     location = models.CharField(
         unique=True, null=False, blank=False, max_length=300)
-    bays = models.IntegerField(null=False, blank=False)
-    daily_rate = models.FloatField(null=False, blank=False, default=0)
+    monthly_rate = models.FloatField(null=False, blank=False, default=0)
 
     def occupancy(self):
         percentage = 0
-        for day in self.days.all():
-            percentage += day.occupancy()/self.days.count()
+        for bay in self.bays.all():
+            percentage += bay.occupancy()/self.bays.count()
         return percentage
 
     def occupancy_percentage(self):
@@ -48,53 +45,35 @@ class Lot(models.Model):
         return self.location
 
 
-class LotDay(models.Model):
-    lot = models.ForeignKey(
-        to=Lot, on_delete=models.CASCADE, related_name=_('days'), null=False, blank=False)
-    day = models.CharField(
-        choices=DAYS, max_length=3, null=False, blank=False, default=DAYS[0][0])
-    rate = models.FloatField(null=False, blank=False)
-
-    class meta:
-        constraints = [
-            models.UniqueConstraint(fields=['lot', 'day'], name='unique_day')
-        ]
+class Bay(models.Model):
+    lot = models.ForeignKey(Lot, on_delete=models.CASCADE,
+                            related_name=_('bays'), null=False, blank=False)
+    notes = models.CharField(max_length=255)
+    code = models.CharField(
+        max_length=5, help_text="A lot-specific code to use for reserved bays. This should not be set on non-reserved bays.")  # For reserved bays
 
     def occupancy(self):
-        return self.bookings.count()/self.lot.bays*100
+        """
+        Returns a fractional occupancy value for this bay.
+        """
+        return self.days.count() / DAYS.count()
 
-    def occupancy_percentage(self):
-        return f"{round(self.occupancy())}%"
+    def is_occupied(self, day):
+        """
+        Given a day value (from DAYS) return whether this bay is occupied for that day.
+        """
+        for d in self.days.all():
+            if d.day == day:
+                return True
 
-    def __str__(self):
-        return f"{self.lot} ({self.day})"
-
-    def __unicode__(self):
-        return f"{self.lot} ({self.day})"
+        return False
 
 
 class Booking(models.Model):
     customer = models.ForeignKey(
-        to=Customer, on_delete=models.CASCADE, related_name=_('booking'), null=False, blank=False)
-    days = models.ManyToManyField(
-        to=LotDay, related_name=_('bookings'))
+        to=Customer, on_delete=models.CASCADE, related_name=_('bookings'), null=False, blank=False)
+    monthly_rate = models.FloatField(null=False, blank=False, default=0)
     start_date = models.DateField(auto_now=True, null=False)
-
-    def weekly_rate(self):
-        total = 0
-        for day in self.days.all():
-            total += day.rate
-        return total
-
-    def monthly_rate(self):
-        # Charge for 4 weeks per month
-        return self.weekly_rate() * 4
-
-    def lots(self):
-        lots = set()
-        for day in self.days.all():
-            lots.add(day.lot)
-        return lots
 
     def __str__(self):
         return f"{self.customer}: {self.start_date}"
@@ -103,31 +82,40 @@ class Booking(models.Model):
         return f"{self.customer}: {self.start_date}"
 
 
-@receiver(post_save, sender=Lot, dispatch_uid="lot_created")
-def create_days(sender, instance, created, **kwargs):
-    """
-    Create LotDay entries for newly created lots.
-    """
-    if not created:
-        # Not relevant
-        return
-
-    for day in DAYS:
-        LotDay.objects.create(
-            lot=instance, day=day[0], rate=instance.daily_rate)
+class BookingDay(models.Model):
+    booking = models.ForeignKey(
+        Booking, on_delete=models.CASCADE, related_name=_('days'), null=False, blank=False)
+    day = models.CharField(
+        choices=DAYS, max_length=3, null=False, blank=False, default=DAYS[0][0])
+    bay = models.ForeignKey(Bay, on_delete=models.CASCADE, related_name=_('days'),
+                            null=False, blank=False)
 
 
-@receiver(m2m_changed, sender=Booking.days.through, dispatch_uid="booking_days_changed")
-def booking_days_changed(sender, instance, action, **kwargs):
-    """
-    Delete a new booking if it is not valid.
-    """
-    if action != "post_add":
-        # Not relevant
-        return
+# @receiver(post_save, sender=Lot, dispatch_uid="lot_created")
+# def create_days(sender, instance, created, **kwargs):
+#     """
+#     Create LotDay entries for newly created lots.
+#     """
+#     if not created:
+#         # Not relevant
+#         return
 
-    for day in instance.days.all():
-        if day.bookings.count() > day.lot.bays:
-            # This booking overfills the number of bays, delete it and stop
-            instance.delete()
-            return
+#     for day in DAYS:
+#         LotDay.objects.create(
+#             lot=instance, day=day[0], rate=instance.daily_rate)
+
+
+# @receiver(m2m_changed, sender=Booking.days.through, dispatch_uid="booking_days_changed")
+# def booking_days_changed(sender, instance, action, **kwargs):
+#     """
+#     Delete a new booking if it is not valid.
+#     """
+#     if action != "post_add":
+#         # Not relevant
+#         return
+
+#     for day in instance.days.all():
+#         if day.bookings.count() > day.lot.bays:
+#             # This booking overfills the number of bays, delete it and stop
+#             instance.delete()
+#             return
