@@ -2,60 +2,145 @@
 
 <head>
   <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
     th,
     td {
       text-align: start;
+      padding-right: 20px;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    h2 {
+      color: #007bc7;
+      margin: 0 0 20px 0;
+    }
+
+    .table-sec {
+      border-radius: 5px;
+      box-shadow: 0px 0px 6px #999;
+      margin: 20px;
+      padding: 40px;
+    }
+
+    .occupancy-table td {
+      width: 16.6%;
     }
 
     .free {
-      background-color: green;
+      background-color: lightgreen;
     }
 
-    .occupied {
-      background-color: red;
+    .header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      background-color: #007bc7;
+      color: white;
     }
+
+    .header-block {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    #data {
+      margin: 40px 0;
+      border-radius: 5px;
+      box-shadow: 0px 0px 6px #999;
+      background: #95d7ff;
+      margin: 20px;
+      padding: 40px;
+    }
+
+    #data h2 {
+      color: black;
+    }
+
+    #data article {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* #data h2 {
+      width:
+    } */
+
+    /* .occupied {
+      background-color: lightcoral;
+    } */
   </style>
 </head>
 
-<div
-  style="display: flex; flex-direction: row; justify-content:space-between; align-items: center;"
->
+<div class="header">
   <h1>{{ lot.location }}</h1>
-  <p><strong>Monthly Rate:</strong>{{ lot.monthly_rate }}</p>
-  <p><strong>Total Bays:</strong>{{ lot.bays.count }}</p>
-  <p><strong>Used Bays:</strong>{{ lot.used_bays }}</p>
-  <p><strong>Occupancy:</strong>{{ lot.occupancy_percentage }}</p>
 </div>
 
-<div style="margin-left:20px;margin-top:20px">
-  <h4>Bookings</h4>
+<section id="data">
+  <h2>Statistics</h2>
+  <article>
+    <div class="header-block">
+      <strong>Monthly Rate</strong>
+      <p>{{ lot.monthly_rate }}</p>
+    </div>
+    <div class="header-block">
+      <strong>Total Bays</strong>
+      <p>{{ lot.bays.count }}</p>
+    </div>
+    <div class="header-block">
+      <strong>Used Bays</strong>
+      <p>{{ lot.used_bays }}</p>
+    </div>
+    <div class="header-block">
+      <strong>Occupancy</strong>
+      <p>{{ lot.occupancy_percentage }}</p>
+    </div>
+  </article>
+</section>
 
-  <table style="width:100%">
+<div class="table-sec">
+  <h2>Bookings</h2>
+
+  <table>
     <tr>
       <th>Customer</th>
       <th>Monthly Rate</th>
       <th>Start Date</th>
-      <th>Bays</th>
+      <!-- <th>Bays</th> -->
     </tr>
     {% for booking in lot.bookings.all %}
     <tr>
       <td>{{ booking.customer }}</td>
       <td>{{ booking.monthly_rate }}</td>
       <td>{{ booking.start_date }}</td>
-      <td>
+      <!-- <td>
         {% for bay in booking.get_unique_bays %}
         <p>{{ bay }}</p>
         {% endfor %}
-      </td>
+      </td> -->
     </tr>
     {% endfor %}
   </table>
 </div>
 
-<div style="margin-left:20px;margin-top:20px">
-  <h4>Bays</h4>
+<div class="table-sec">
+  <h2>Occupancy</h2>
 
-  <table style="width:100%">
+  <table class="occupancy-table" style="width:100%">
     <tr>
       <th>BayID</th>
       {% for day in DAYS %}
@@ -64,11 +149,12 @@
     </tr>
     {% for bay in lot.bays.all %}
     <tr>
-        <td>{{ bay }}</td>
-        {% for day in DAYS %}
-        {% is_bay_occupied bay day as occupied %}
-        <td class="{% if occupied %} occupied {% else %} free {% endif %}">{{ occupied }}</td>
-        {% endfor %}
+      <td>{{ bay }}</td>
+      {% for day in DAYS %} {% get_bay_booking bay day as booking %}
+      <td class="{% if booking %} occupied {% else %} free {% endif %}">
+        {{ booking }}
+      </td>
+      {% endfor %}
     </tr>
     {% endfor %}
   </table>

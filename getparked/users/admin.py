@@ -23,4 +23,10 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('email', 'first_name', 'last_name')
     list_filter = ('is_staff', 'is_superuser', 'is_active')
     ordering = ('-is_staff', 'email',)
-    form = CustomUserChangeForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            return super(UserAdmin, self).get_form(request, obj, **kwargs)
+        else:
+            return CustomUserChangeForm
+            

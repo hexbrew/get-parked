@@ -47,7 +47,7 @@ class Lot(models.Model):
         for bay in bays:
             if bay.occupancy() > 0:
                 used += 1
-       
+
         return used
 
     def __str__(self):
@@ -60,7 +60,8 @@ class Lot(models.Model):
 class Bay(models.Model):
     lot = models.ForeignKey(Lot, on_delete=models.CASCADE,
                             related_name=_('bays'), null=False, blank=False)
-    code = models.CharField(
+    number = models.PositiveSmallIntegerField(null=False, blank=False, default=1, help_text="A lot-specific bay number.")
+    reservation_code = models.CharField(
         max_length=5, null=True, blank=True, help_text="A lot-specific code to use for reserved bays. This should not be set on non-reserved bays.")  # For reserved bays
     size = models.CharField(max_length=10, null=False,
                             blank=False, default='Any')
@@ -85,6 +86,16 @@ class Bay(models.Model):
 
         return False
 
+    def get_day_booking(self, day):
+        """
+        Given a day value (from DAYS) return the booking for that day, if one exists.
+        """
+        for d in self.days.all():
+            if d.day == day[0]:
+                return d.booking
+
+        return None
+
     def bookings(self):
         """
         Returns the customer bookings for this bay.
@@ -95,10 +106,10 @@ class Bay(models.Model):
         return bookings
 
     def __str__(self):
-        return f"{self.lot} ({self.code or 'Virtual'})"
+        return f"{self.number}"
 
     def __unicode__(self):
-        return f"{self.lot} ({self.code or 'Virtual'})"
+        return f"{self.number}"
 
 
 class Booking(models.Model):
@@ -116,10 +127,10 @@ class Booking(models.Model):
         return bays
 
     def __str__(self):
-        return f"{self.customer}: {self.start_date}"
+        return f"{self.customer}"
 
     def __unicode__(self):
-        return f"{self.customer}: {self.start_date}"
+        return f"{self.customer}"
 
 
 class BookingDay(models.Model):
