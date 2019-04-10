@@ -7,5 +7,8 @@ from parking import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('lots/', views.LotListView.as_view(), name='lot-list'),
+    path('lots/<int:pk>', views.LotDetailView.as_view(), name='lot-detail'),
+
     path(settings.FRONTEND_URL, include('frontend.urls')),
 ]

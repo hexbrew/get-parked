@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     #Custom
     'users',
     'parking',
-    'frontend'
+    'frontend',
 ]
 
 MIDDLEWARE = [

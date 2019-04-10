@@ -1,21 +1,18 @@
 from django import forms
+from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
-from .models import Lot, Bay, Booking
+from .models import Lot, Bay, Booking, BookingDay
 
 
-class BookingAddForm(forms.ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['customer', 'monthly_rate']
-        help_texts = {
-            'customer': _('The account holder for this booking.'),
-            'monthly_rate': _("A custom monthly rate for this customer. "
-                              "Leave this blank to use the default rate for this lot",)
-        }
-
-    lot = forms.ModelChoiceField(queryset=Lot.objects.all())
-
+# class BookingForm(forms.ModelForm):
+#     class Meta:
+#         model = Booking
+#         help_texts = {
+#             'customer': _('The account holder for this booking.'),
+#             'monthly_rate': _("A custom monthly rate for this customer. "
+#                               "Leave this blank to use the default rate for this lot",)
+#         }
 
 class LotAddForm(forms.ModelForm):
     class Meta:
@@ -32,7 +29,7 @@ class LotAddForm(forms.ModelForm):
         "You will be able to customise these further after lot creation."))
 
     def save(self, commit=True):
-        instance = super(LotCreateForm, self).save(commit=False)
+        instance = super(LotAddForm, self).save(commit=False)
         instance.save()
 
         for i in range(self.cleaned_data['unreserved_bays']):
@@ -42,3 +39,14 @@ class LotAddForm(forms.ModelForm):
             Bay.objects.create(lot=instance, code=i)
 
         return instance
+
+# class BookingInlineForm(forms.ModelForm):
+#     class Meta:
+#         model = Booking
+#         fields = ['customer', 'monthly_rate']
+#         # help_texts = {
+#         #     'location': _('The address of this lot.'),
+#         #     'monthly_rate': _("The default monthly rate to apply for customers who sign up online.")
+#         # }
+
+#     notes = forms.CharField(label="Notes")

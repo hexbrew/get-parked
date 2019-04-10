@@ -1,0 +1,75 @@
+{% load app_tags %}
+
+<head>
+  <style>
+    th,
+    td {
+      text-align: start;
+    }
+
+    .free {
+      background-color: green;
+    }
+
+    .occupied {
+      background-color: red;
+    }
+  </style>
+</head>
+
+<div
+  style="display: flex; flex-direction: row; justify-content:space-between; align-items: center;"
+>
+  <h1>{{ lot.location }}</h1>
+  <p><strong>Monthly Rate:</strong>{{ lot.monthly_rate }}</p>
+  <p><strong>Total Bays:</strong>{{ lot.bays.count }}</p>
+  <p><strong>Used Bays:</strong>{{ lot.used_bays }}</p>
+  <p><strong>Occupancy:</strong>{{ lot.occupancy_percentage }}</p>
+</div>
+
+<div style="margin-left:20px;margin-top:20px">
+  <h4>Bookings</h4>
+
+  <table style="width:100%">
+    <tr>
+      <th>Customer</th>
+      <th>Monthly Rate</th>
+      <th>Start Date</th>
+      <th>Bays</th>
+    </tr>
+    {% for booking in lot.bookings.all %}
+    <tr>
+      <td>{{ booking.customer }}</td>
+      <td>{{ booking.monthly_rate }}</td>
+      <td>{{ booking.start_date }}</td>
+      <td>
+        {% for bay in booking.get_unique_bays %}
+        <p>{{ bay }}</p>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div style="margin-left:20px;margin-top:20px">
+  <h4>Bays</h4>
+
+  <table style="width:100%">
+    <tr>
+      <th>BayID</th>
+      {% for day in DAYS %}
+      <th>{{ day.0 }}</th>
+      {% endfor %}
+    </tr>
+    {% for bay in lot.bays.all %}
+    <tr>
+        <td>{{ bay }}</td>
+        {% for day in DAYS %}
+        {% is_bay_occupied bay day as occupied %}
+        <td class="{% if occupied %} occupied {% else %} free {% endif %}">{{ occupied }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>

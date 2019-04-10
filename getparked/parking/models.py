@@ -41,16 +41,14 @@ class Lot(models.Model):
     def occupancy_percentage(self):
         return f"{round(self.occupancy()*100)}%"
 
-    def bookings(self):
-        bookings = set()
+    def used_bays(self):
+        used = 0
         bays = self.bays.all()
         for bay in bays:
-            booking_days = bay.days.all()
-            for day in booking_days:
-                bookings.add(day.booking)
-
-        return bookings
-
+            if bay.occupancy() > 0:
+                used += 1
+       
+        return used
 
     def __str__(self):
         return self.location
@@ -82,7 +80,7 @@ class Bay(models.Model):
         Given a day value (from DAYS) return whether this bay is occupied for that day.
         """
         for d in self.days.all():
-            if d.day == day:
+            if d.day == day[0]:
                 return True
 
         return False
@@ -106,8 +104,16 @@ class Bay(models.Model):
 class Booking(models.Model):
     customer = models.ForeignKey(
         to=Customer, on_delete=models.CASCADE, related_name=_('bookings'), null=False, blank=False)
+    lot = models.ForeignKey(to=Lot, on_delete=models.CASCADE,
+                            related_name=('bookings'), null=False, blank=False)
     monthly_rate = models.FloatField(null=False, blank=False, default=0)
     start_date = models.DateField(auto_now=True, null=False)
+
+    def get_unique_bays(self):
+        bays = set()
+        for day in self.days.all():
+            bays.add(day.bay)
+        return bays
 
     def __str__(self):
         return f"{self.customer}: {self.start_date}"
@@ -123,33 +129,3 @@ class BookingDay(models.Model):
         choices=DAYS, max_length=3, null=False, blank=False, default=DAYS[0][0])
     bay = models.ForeignKey(Bay, on_delete=models.CASCADE, related_name=_('days'),
                             null=False, blank=False)
-
-
-# @receiver(post_save, sender=Lot, dispatch_uid="lot_created")
-# def create_days(sender, instance, created, **kwargs):
-#     """
-#     Create LotDay entries for newly created lots.
-#     """
-#     if not created:
-#         # Not relevant
-#         return
-
-#     for day in DAYS:
-#         LotDay.objects.create(
-#             lot=instance, day=day[0], rate=instance.daily_rate)
-
-
-# @receiver(m2m_changed, sender=Booking.days.through, dispatch_uid="booking_days_changed")
-# def booking_days_changed(sender, instance, action, **kwargs):
-#     """
-#     Delete a new booking if it is not valid.
-#     """
-#     if action != "post_add":
-#         # Not relevant
-#         return
-
-#     for day in instance.days.all():
-#         if day.bookings.count() > day.lot.bays:
-#             # This booking overfills the number of bays, delete it and stop
-#             instance.delete()
-#             return

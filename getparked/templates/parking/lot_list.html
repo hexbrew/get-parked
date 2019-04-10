@@ -1,0 +1,8 @@
+<h1>Lots</h1>
+<ul>
+{% for lot in object_list %}
+    <li><a href="{% url 'lot-detail' lot.pk %}">{{ lot.location }}</a></li>
+{% empty %}
+    <li>No articles yet.</li>
+{% endfor %}
+</ul>

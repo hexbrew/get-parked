@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import DAYS
 from .models import Customer, Lot, Bay, Booking, BookingDay
-from .forms import LotAddForm, BookingAddForm
+from .forms import LotAddForm 
 
 
 class BayInline(admin.TabularInline):
@@ -12,23 +12,24 @@ class BayInline(admin.TabularInline):
     readonly_fields = ('occupancy_percentage', 'bookings',)
     extra = 0
 
-    # def has_add_permission(self, request):
-    #     return False
-
-    # def has_delete_permission(self, request, obj=None):
-    #     return False
-
 
 class BookingDayInline(admin.TabularInline):
     model = BookingDay
     extra = 0
     max_num = DAYS.__len__()
 
-    # def has_add_permission(self, request):
-    #     return False
 
-    # def has_delete_permission(self, request, obj=None):
-    #     return False
+class BookingInline(admin.TabularInline):
+    model = Booking
+    # formset = BookingDaysFormset
+    # form = BookingInlineForm
+    extra = 0
+
+    # fields = ('get_email', 'customer', 'monthly_rate')
+    # readonly_fields = ('get_email', 'customer.user.email', 'bookings',)
+
+    # def get_email(self, obj):
+    #     return obj.customer.user.email
 
 
 @admin.register(Customer)
@@ -62,7 +63,7 @@ class LotAdmin(admin.ModelAdmin):
         return super(LotAdmin, self).add_view(request)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.inlines = [BayInline]
+        self.inlines = [BookingInline]
         return super(LotAdmin, self).change_view(request, object_id)
 
     def get_form(self, request, obj=None, **kwargs):
