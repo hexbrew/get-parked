@@ -8,11 +8,6 @@ from .models import Lot, Bay, Booking, BookingDay
 # class BookingForm(forms.ModelForm):
 #     class Meta:
 #         model = Booking
-#         help_texts = {
-#             'customer': _('The account holder for this booking.'),
-#             'monthly_rate': _("A custom monthly rate for this customer. "
-#                               "Leave this blank to use the default rate for this lot",)
-#         }
 
 class LotAddForm(forms.ModelForm):
     class Meta:
@@ -39,14 +34,3 @@ class LotAddForm(forms.ModelForm):
             Bay.objects.create(lot=instance, code=i)
 
         return instance
-
-# class BookingInlineForm(forms.ModelForm):
-#     class Meta:
-#         model = Booking
-#         fields = ['customer', 'monthly_rate']
-#         # help_texts = {
-#         #     'location': _('The address of this lot.'),
-#         #     'monthly_rate': _("The default monthly rate to apply for customers who sign up online.")
-#         # }
-
-#     notes = forms.CharField(label="Notes")
